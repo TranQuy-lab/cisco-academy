@@ -1,0 +1,102 @@
+1.2 Configure Switch Ports (Cấu hình cổng Switch)
+1. Các chế độ giao tiếp (Duplex Communication)
+Các Switch thường có 2 loại giao tiếp chính:
+
+Full-duplex communication (Giao tiếp song công toàn phần): Cho phép vừa gửi vừa nhận dữ liệu cùng một lúc (giống như nghe gọi điện thoại).
+
+Half-duplex communication (Giao tiếp bán song công): Là loại công nghệ cũ, chỉ có thể gửi hoặc nhận tại một thời điểm, không thể làm cả hai cùng lúc (giống như bộ đàm).
+
+Lưu ý: Để đạt được tốc độ mạng cao (Gigabit trở lên), hệ thống loại bỏ hoàn toàn cơ chế chống xung đột (CSMA/CD) và bắt buộc phải chạy ở chế độ Full-duplex để tận dụng tối đa băng thông 2 chiều.
+
+2. Các bước cấu hình cổng Switch ở lớp vật lý (Physical Layer)
+Dưới đây là quy trình cấu hình trên Switch S1:
+
+Bước 1: Vào chế độ cấu hình toàn cục
+
+Bash
+S1# configure terminal
+Bước 2: Chọn cổng cần cấu hình (Ví dụ: FastEthernet 0/1)
+
+Bash
+S1(config)# interface fastEthernet 0/1
+Bước 3: Cài đặt chế độ song công toàn phần
+
+Bash
+S1(config-if)# duplex full
+Bước 4: Cài đặt tốc độ truyền cố định (Ví dụ: 100 Mbps)
+
+Bash
+S1(config-if)# speed 100
+Bước 5: Thoát về chế độ đặc quyền
+
+Bash
+S1(config-if)# end
+Bước 6: Lưu cấu hình (Rất quan trọng để không mất cài đặt khi khởi động lại)
+
+Bash
+S1# copy running-config startup-config
+(Hoặc dùng lệnh tắt: copy run start hoặc wr)
+
+3. Lưu ý về phần cứng
+Cổng 1000 Mbps (1 Gbps): Thường chỉ hoạt động tối ưu ở chế độ Full-duplex. Nếu chỉnh tốc độ xuống 10 hoặc 100 Mbps thì có thể chạy Half hoặc Full, nhưng lên 1000 Mbps thì bắt buộc là Full.
+
+Cổng cáp quang (Fiber-optic): Luôn hoạt động ở một tốc độ định sẵn duy nhất và chế độ Full-duplex.
+
+4. Auto-MDIX (Automatic Medium-Dependent Interface Crossover)
+Tính năng này giải quyết vấn đề chọn loại cáp cho từng cặp thiết bị.
+
+Quy tắc cáp truyền thống (khi chưa có Auto-MDIX):
+
+Cáp thẳng (Straight-through): Dùng để nối Switch với các thiết bị khác loại (Switch nối PC, Switch nối Router, Switch nối Server).
+
+Cáp chéo (Crossover): Bắt buộc dùng để nối 2 thiết bị cùng loại (Switch nối Switch, Switch nối Hub/Repeater, PC nối PC).
+
+Hậu quả: Nếu cắm sai loại dây, đèn tín hiệu sẽ không sáng (không thông mạng).
+
+Giải pháp Auto-MDIX: Cổng Switch được cấu hình để tự động phát hiện loại dây đang cắm và tự điều chỉnh tín hiệu điện. Vì vậy, khi bật tính năng này, bạn sử dụng dây thẳng hay dây chéo đều được.
+
+Lưu ý quan trọng: Để Auto-MDIX hoạt động chính xác, thông thường bạn phải để chế độ Speed và Duplex là Auto (không được fix cứng tốc độ hay duplex).
+
+Cách bật Auto-MDIX:
+
+Bash
+S1(config-if)# mdix auto
+5. Switch Verification Commands (Các lệnh kiểm tra)
+Sau khi cấu hình, sử dụng các lệnh sau ở chế độ đặc quyền (#) để kiểm tra:
+
+Xem cấu hình hiện tại đang chạy (trên RAM):
+
+Bash
+S1# show running-config
+Xem cấu hình khởi động (lưu trong NVRAM):
+
+Bash
+S1# show startup-config
+Kiểm tra trạng thái cổng (tốc độ, thống kê lỗi, trạng thái up/down...):
+
+Bash
+S1# show interfaces [interface-id]
+(Ví dụ: S1# show interface fa0/1)
+
+Kiểm tra các thông tin liên quan đến giao thức IP (Lớp 3):
+
+Bash
+S1# show ip interface [interface-id]
+(Lệnh này thường dùng để xem trạng thái sơ lược của tất cả các cổng: show ip interface brief)
+
+Kiểm tra hệ thống phần cứng và phiên bản IOS:
+
+Bash
+S1# show version
+Xem các file đang lưu trong bộ nhớ Flash:
+
+Bash
+S1# show flash
+Xem bảng địa chỉ MAC:
+
+Bash
+S1# show mac-address-table
+Xem lại danh sách lệnh vừa gõ gần đây:
+
+Bash
+S1# show history
